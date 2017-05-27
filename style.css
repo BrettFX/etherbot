@@ -9,9 +9,11 @@ html, body{
             margin: 10px;
             padding: 0px;
             overflow: auto;
+            overflow-y: scroll;
             margin: 0 auto;
             margin-botom: 10px;
         }
+        
         header {
             background-color: #DCE9EE;
             clear: both;

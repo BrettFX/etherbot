@@ -6,6 +6,15 @@
     <title>EtherBot client</title>
     <link rel="stylesheet" href="style.css">
     <script>
+        //This function scrolls down authomatically every 50ms. For non Mozilla browsers.
+        function updateScroll() {
+            if(!document.getElementById("noscroll").checked) {
+                var clog = document.getElementById("clw");
+                clog.scrollTop = clog.scrollHeight;
+            }
+        }
+        
+        //Ajax queries for the chat
         function Chat() {
             var xhttp;
             var uinput = document.getElementById("usinput").value;
@@ -20,10 +29,12 @@
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             
             xhttp.onreadystatechange = function() {
+            var clog = document.getElementById("chatlog");
                 if (this.readyState == 4 && this.status == 200) {
-                    document.getElementById("chatlog").innerHTML += "<li><b>User: </b>" + uinput + "</li><li><b>EtherBot</b>: " + this.responseText + "</li>";
+                    clog.innerHTML += "<li><b>User: </b>" + uinput + "</li><li><b>EtherBot</b>: " + this.responseText + "</li>";
                     document.getElementById("usinput").value = "";
-                    document.getElementById("chatlog").scrollIntoView({block: "end", behavior: "smooth"});
+                    //Elegant way of scrolling down for mozilla browsers. MAKE IT A STANDARD!
+                    clog.scrollIntoView({block: "end", behavior: "smooth"});
                 }
             };
             
@@ -35,7 +46,7 @@
     <header>
         <img src="etherbot.png">
     </header>
-    <div class="chatlog">
+    <div class="chatlog" id="clw" name="clw">
         <ul id="chatlog">
             
         </ul>
@@ -43,15 +54,24 @@
     <center>
         <label for="userinput">Say: </label>
         <input type="text" name="userinput" id="usinput"><input type="button" value="Send" onClick="Chat()" id="chatb">
+        <br>
+        <input type="checkbox" id="noscroll">Disable autoscroll
         <br><br>
         <p>This project's github: <a href="https://github.com/aaroncdc/etherbot">https://github.com/aaroncdc/etherbot</a></p></center>
     <script>
+        //Handling the ENTER key in the user input
         document.getElementById("usinput").addEventListener("keyup", function(event){
             event.preventDefault();
             if (event.keyCode == 13) {
                 document.getElementById("chatb").click();
             }
-        })
+        });
+        
+        // The only effective way to keep the chat scrolled down outside of Firefox
+        if(navigator.userAgent.search("Firefox") == -1)
+            setInterval(function(){
+                updateScroll();
+            }, 50);
     </script>
 </body>
 </html>
