@@ -1,37 +1,37 @@
 #!/usr/bin/python3
 
+# Lots of library imports
 import asyncore
 import re
 import sqlite3
 import cgi
-#import http.server
 from collections import Counter
 from string import punctuation
 from math import sqrt
-#from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep
 
 # initialize the connection to the database
 connection = sqlite3.connect('bot.sqlite')
 cursor = connection.cursor()
+# Variable to store the response
 B = "Hello"
 
+# Address where the server will listen
 IPADDR = "192.168.1.124"
 PORT_NUMBER = 8080
 IPADDR, PORT_NUMBER = input("Local IP: "),int(input("Local port: "))
-bts = True
 
 #This class will handles any incoming request from
 #the browser 
 class myHandler(BaseHTTPRequestHandler):
+    # Boolean that indicates if the file is binary or not
+    bts = True
     #Handler for the GET requests
     def do_GET(self):
         global bts
         if self.path=="/":
-            self.path="client.html"
-        elif self.path.endswith(".png"):
-            print("Image: " + self.path)
+            self.path="client.html" # This is our index file
         
         try:
 			#Check the file extension required and
@@ -41,31 +41,31 @@ class myHandler(BaseHTTPRequestHandler):
             if self.path.endswith(".html"):
                 mimetype='text/html'
                 sendReply = True
-                bts = False
+                self.bts = False
             if self.path.endswith(".jpg"):
                 mimetype='image/jpg'
                 sendReply = True
-                bts = True
+                self.bts = True
             if self.path.endswith(".png"):
                 mimetype='image/png'
                 sendReply = True
-                bts = True
+                self.bts = True
             if self.path.endswith(".gif"):
                 mimetype='image/gif'
                 sendReply = True
-                bts = True
+                self.bts = True
             if self.path.endswith(".js"):
                 mimetype='application/javascript'
                 sendReply = True
-                bts = False
+                self.bts = False
             if self.path.endswith(".css"):
                 mimetype='text/css'
                 sendReply = True
-                bts = False
+                self.bts = False
 
             if sendReply == True:
                 #Open the static file requested and send it
-                if bts:
+                if self.bts:
                     print("Serving bytes: " + curdir + sep + self.path)
                     f = open(curdir + sep + self.path, 'rb')
                 else:
@@ -74,33 +74,39 @@ class myHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-type',mimetype)
                 self.end_headers()
-                if bts:
+                if self.bts:
                     self.wfile.write(f.read())
                 else:
                     self.wfile.write(f.read().encode('utf-8')) 
                 f.close()
             return
+        # If the file does not exist, post an error
         except IOError:
             self.send_error(404,'File Not Found: %s' % self.path)
 
+    # Handle the POST requests. This is the user input.
     def do_POST(self):
+        # "/send" is a virtual path where the information is sent to the bot
         if self.path=="/send":
+            # Handle the request
             form = cgi.FieldStorage(
                 fp=self.rfile,
                 headers=self.headers,
                 environ={'REQUEST_METHOD':'POST',
                          'CONTENT_TYPE':self.headers['Content-Type'],
                          })
-                
+            # Handle the user input
             print("Post: " + form["userinput"].value)
+            # This sends the input to the bot
             process_ui(form["userinput"].value)
+            # Send the generated response back to the client
             self.send_response(200)
             self.end_headers()
             self.wfile.write(B.encode("utf-8"))
             return
 
 
-
+# - UNUSED - This is a TCP handler
 class BotHandler(asyncore.dispatcher_with_send):
     
     def handle_read(self):
@@ -110,7 +116,8 @@ class BotHandler(asyncore.dispatcher_with_send):
             process_ui(data.decode('utf-8'))
             print(">>", B)
             self.send(B.append('\n').encode('utf-8'))
-
+            
+# - UNUSED - This is a TCP handler
 class BotServer(asyncore.dispatcher):
     
     def __init__(self, host, port):
@@ -124,6 +131,8 @@ class BotServer(asyncore.dispatcher):
         print('Incoming connection from %s' % repr(addr))
         handler = BotHandler(sock)
 
+# - BOT CODE FUNCTIONS -
+# Code based on https://rodic.fr/blog/python-chatbot-1/
 def get_id(entityName, text):
     """Retrieve an entity's unique ID from the database, given its associated text.
     If the row is not already present, it is inserted.
@@ -177,6 +186,7 @@ def process_ui(H):
     B = row[1]
     cursor.execute('UPDATE sentences SET used=used+1 WHERE rowid=?', (row[0],)) 
 
+# -- MAIN FUNCTION --
 if __name__ == '__main__':
     
     # create the tables needed by the program
@@ -191,6 +201,7 @@ if __name__ == '__main__':
         except:
             pass
     
+    # Start the web server
     try:
         #Create a web server and define the handler to manage the
         #incoming request
@@ -203,6 +214,10 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print ("^C received, shutting down the web server")
         server.socket.close()
+    
+    # -- OPTIONAL --
+    # Uncomment the following lines to enable the TCP server. You can chat with your
+    # bot using telnet! (Or client.py)
     
     #HOST, PORT = input("Local IP: "),int(input("Local port: "))
     #server = BotServer(HOST, PORT)

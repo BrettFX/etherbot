@@ -4,7 +4,7 @@
 ### How to run EtherBot
 First, add execution rights to your main.py module:
 
-> # chmod +x main.py
+> sudo chmod +x main.py
 
 Then run it!
 
@@ -20,3 +20,5 @@ Remove the file bot.sqlite to create a new database. This database will be autog
 When you start a new database, the bot will try to copy what you say rather than generating proper output. This is normal behaviour, just keep replying the best you can until the bot gets the hang of it.
 
 The bot is not very smart but it works OK. Don't get too attached to your bot.
+
+Uncomment the TCP server to enable it. You can later connect to the TCP server using the provided client.py script, or even telnet or a similar program!
