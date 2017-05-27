@@ -16,8 +16,10 @@ from os import curdir, sep
 connection = sqlite3.connect('bot.sqlite')
 cursor = connection.cursor()
 B = "Hello"
+
 IPADDR = "192.168.1.124"
 PORT_NUMBER = 8080
+IPADDR, PORT_NUMBER = input("Local IP: "),int(input("Local port: "))
 
 #This class will handles any incoming request from
 #the browser 
