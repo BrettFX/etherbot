@@ -3,31 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>EtherBot client</title>
-    <style>
-        .chatlog {
-            border: 0;
-            width: 640px;
-            height: 320px;
-            margin: 10px;
-            padding: 0px;
-            overflow: auto;
-            margin: 0 auto;
-            margin-botom: 10px;
-        }
-        ul {
-            list-style-type: none;
-            margin: 0px;
-            padding: 0px;
-        }
-        li {
-            background-color: #B0E5A8;
-            padding: 3px;
-        }
-        li:nth-child(even) {
-            background-color: #A9A8E5;
-            padding: 3px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
     <script>
         function Chat() {
             var xhttp;
@@ -55,7 +31,9 @@
     </script>
 </head>
 <body>
-    <h1>EtherBot</h1>
+    <header>
+        <img src="etherbot.png">
+    </header>
     <div class="chatlog">
         <ul id="chatlog">
             
@@ -63,7 +41,9 @@
     </div>
     <center>
         <label for="userinput">Say: </label>
-        <input type="text" name="userinput" id="usinput"><input type="button" value="Send" onClick="Chat()" id="chatb"></center>
+        <input type="text" name="userinput" id="usinput"><input type="button" value="Send" onClick="Chat()" id="chatb">
+        <br><br>
+        <p>This project's github: <a href="https://github.com/aaroncdc/etherbot">https://github.com/aaroncdc/etherbot</a></p></center>
     <script>
         document.getElementById("usinput").addEventListener("keyup", function(event){
             event.preventDefault();

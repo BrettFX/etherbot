@@ -1,0 +1,49 @@
+html, body{
+            width: 100%;
+            margin: 0;
+        }
+        .chatlog {
+            border: 0;
+            width: 640px;
+            height: 320px;
+            margin: 10px;
+            padding: 0px;
+            overflow: auto;
+            margin: 0 auto;
+            margin-botom: 10px;
+        }
+        header {
+            background-color: #DCE9EE;
+            clear: both;
+            float: left;
+            margin: 0;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        ul {
+            list-style-type: none;
+            margin: 0px;
+            padding: 0px;
+        }
+        li {
+            background-color: #C8EDD0;
+            padding: 5px;
+            border-radius: 10px;
+            margin: 10px;
+            floating: left;
+        }
+        li:nth-child(even) {
+            background-color: #C8CEED;
+            margin-left: 20px;
+        }
+p {
+font-family: Arial Narrow,Arial,sans-serif;
+        font-size: 18px;
+        font-style: normal;
+        font-variant: normal;
+        color: #d5d2c3;
+}
+
+a {
+    color: #c0bca5;
+}

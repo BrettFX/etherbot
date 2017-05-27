@@ -20,13 +20,14 @@ B = "Hello"
 IPADDR = "192.168.1.124"
 PORT_NUMBER = 8080
 IPADDR, PORT_NUMBER = input("Local IP: "),int(input("Local port: "))
+bts = True
 
 #This class will handles any incoming request from
 #the browser 
 class myHandler(BaseHTTPRequestHandler):
-
     #Handler for the GET requests
     def do_GET(self):
+        global bts
         if self.path=="/":
             self.path="client.html"
         elif self.path.endswith(".png"):
@@ -40,29 +41,43 @@ class myHandler(BaseHTTPRequestHandler):
             if self.path.endswith(".html"):
                 mimetype='text/html'
                 sendReply = True
+                bts = False
             if self.path.endswith(".jpg"):
                 mimetype='image/jpg'
                 sendReply = True
+                bts = True
             if self.path.endswith(".png"):
                 mimetype='image/png'
                 sendReply = True
+                bts = True
             if self.path.endswith(".gif"):
                 mimetype='image/gif'
                 sendReply = True
+                bts = True
             if self.path.endswith(".js"):
                 mimetype='application/javascript'
                 sendReply = True
+                bts = False
             if self.path.endswith(".css"):
                 mimetype='text/css'
                 sendReply = True
+                bts = False
 
             if sendReply == True:
                 #Open the static file requested and send it
-                f = open(curdir + sep + self.path) 
+                if bts:
+                    print("Serving bytes: " + curdir + sep + self.path)
+                    f = open(curdir + sep + self.path, 'rb')
+                else:
+                    print("Serving text: " + curdir + sep + self.path)
+                    f = open(curdir + sep + self.path)  
                 self.send_response(200)
                 self.send_header('Content-type',mimetype)
                 self.end_headers()
-                self.wfile.write(f.read().encode('utf-8'))
+                if bts:
+                    self.wfile.write(f.read())
+                else:
+                    self.wfile.write(f.read().encode('utf-8')) 
                 f.close()
             return
         except IOError:
