@@ -18,9 +18,19 @@ cursor = connection.cursor()
 B = "Hello"
 
 # Address where the server will listen
-IPADDR = "192.168.1.124"
+IPADDR = "127.0.0.1"
 PORT_NUMBER = 8080
-IPADDR, PORT_NUMBER = input("Local IP: "),int(input("Local port: "))
+IPADDR, PORT_NUMBER = input("Local web IP: "),int(input("Local web port: "))
+
+# -- OPTIONAL --
+# Uncomment the following lines to enable the TCP server. You can chat with your
+# bot using telnet! (Or client.py)
+# HOST = "127.0.0.1"
+# PORT = "8070"
+# HOST, PORT = input("Local TCP IP: "),int(input("Local TCP port: "))
+
+# There are another 3 lines at the bottom that you must uncomment to enable
+# the TCP server!
 
 #This class will handles any incoming request from
 #the browser 
@@ -106,7 +116,7 @@ class myHandler(BaseHTTPRequestHandler):
             return
 
 
-# - UNUSED - This is a TCP handler
+# This is a TCP handler
 class BotHandler(asyncore.dispatcher_with_send):
     
     def handle_read(self):
@@ -115,9 +125,9 @@ class BotHandler(asyncore.dispatcher_with_send):
             print(">", data.decode('utf-8'))
             process_ui(data.decode('utf-8'))
             print(">>", B)
-            self.send(B.append('\n').encode('utf-8'))
+            self.send((B + '\n').encode('utf-8'))
             
-# - UNUSED - This is a TCP handler
+# This is a TCP server
 class BotServer(asyncore.dispatcher):
     
     def __init__(self, host, port):
@@ -208,17 +218,14 @@ if __name__ == '__main__':
         server = HTTPServer((IPADDR, PORT_NUMBER), myHandler)
         print ("Started httpserver on port " , PORT_NUMBER)
         
+        # Uncomment these lines AND THE LINES AT THE BEGGINING to enable the TCP server
+        # tcpserver = BotServer(HOST, PORT)
+        # asyncore.loop()
+        # print ("Started tcpserver on port " , PORT)
+        
         #Wait forever for incoming htto requests
         server.serve_forever()
 
     except KeyboardInterrupt:
         print ("^C received, shutting down the web server")
         server.socket.close()
-    
-    # -- OPTIONAL --
-    # Uncomment the following lines to enable the TCP server. You can chat with your
-    # bot using telnet! (Or client.py)
-    
-    #HOST, PORT = input("Local IP: "),int(input("Local port: "))
-    #server = BotServer(HOST, PORT)
-    #asyncore.loop()
