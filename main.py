@@ -9,7 +9,8 @@ from collections import Counter
 from string import punctuation
 from math import sqrt
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from os import curdir, sep
+from os import curdir, sep, popen
+import platform
 
 # initialize the connection to the database
 connection = sqlite3.connect('bot.sqlite')
@@ -20,7 +21,21 @@ B = "Hello"
 # Address where the server will listen
 IPADDR = "127.0.0.1"
 PORT_NUMBER = 8080
-IPADDR, PORT_NUMBER = input("Local web IP: "),int(input("Local web port: "))
+
+command = "ipconfig | grep -iF 192.168.1." if platform.system() == "Windows" else "ifconfig | grep -iF 192.168.1."
+ip_info = popen(command).read()
+
+lines = ip_info.split("\n")
+ipv4_address = ""
+
+for line in lines:
+    if "ipv4" in line.lower():
+        ipv4_address = line.split(":")[-1].strip(" ")
+
+print("Your IPv4 Address is: {}".format(ipv4_address))
+choice = input("Would you like to connect to {} on port 8080, i.e., {}:8080? (Y/N) ".format(ipv4_address, ipv4_address)).lower()
+
+IPADDR, PORT_NUMBER = input("Local web IP: ") if choice == "n" else ipv4_address, int(input("Local web port: ")) if choice == "n" else 8080
 
 # -- OPTIONAL --
 # Uncomment the following lines to enable the TCP server. You can chat with your
