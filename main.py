@@ -199,23 +199,15 @@ def process_ui(H):
 
 def get_ip_info():
     # Get ipv4 address based on client OS
+    ip_regex = re.compile(r'[0-9]+(?:\.[0-9]+){3}')
     command = "ipconfig | grep -iF 192.168.1." if platform.system() == "Windows" else "ifconfig | grep -iF 192.168.1."
     ip_info = popen(command).read()
 
-    lines = ip_info.split("\n")
-    ipv4_address = ""
-    tokens = []
+    matches = ip_regex.findall(ip_info)
     
-    # Parse ipv4 address
-    for line in lines:
-        if "ipv4" or "inet" in line.lower():
-            tokens = line.split(" ")
-            
-            for token in tokens:
-                if any(char.isdigit() for char in token):
-                    ipv4_address = token
-                    return ipv4_address.strip(" ")
-
+    # Should always be the first match
+    if matches:
+        return matches[0]
     return "127.0.0.1"
 
 # -- MAIN FUNCTION --
