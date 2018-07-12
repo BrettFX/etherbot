@@ -11,6 +11,7 @@ from math import sqrt
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from os import curdir, sep, popen
 import platform
+import webbrowser
 
 # initialize the connection to the database
 connection = sqlite3.connect('bot.sqlite')
@@ -21,21 +22,6 @@ B = "Hello"
 # Address where the server will listen
 IPADDR = "127.0.0.1"
 PORT_NUMBER = 8080
-
-command = "ipconfig | grep -iF 192.168.1." if platform.system() == "Windows" else "ifconfig | grep -iF 192.168.1."
-ip_info = popen(command).read()
-
-lines = ip_info.split("\n")
-ipv4_address = ""
-
-for line in lines:
-    if "ipv4" in line.lower():
-        ipv4_address = line.split(":")[-1].strip(" ")
-
-print("Your IPv4 Address is: {}".format(ipv4_address))
-choice = input("Would you like to connect to {} on port 8080, i.e., {}:8080? (Y/N) ".format(ipv4_address, ipv4_address)).lower()
-
-IPADDR, PORT_NUMBER = input("Local web IP: ") if choice == "n" else ipv4_address, int(input("Local web port: ")) if choice == "n" else 8080
 
 # -- OPTIONAL --
 # Uncomment the following lines to enable the TCP server. You can chat with your
@@ -59,8 +45,8 @@ class myHandler(BaseHTTPRequestHandler):
             self.path="client.html" # This is our index file
         
         try:
-			#Check the file extension required and
-			#set the right mime type
+            #Check the file extension required and
+            #set the right mime type
 
             sendReply = False
             if self.path.endswith(".html"):
@@ -211,8 +197,35 @@ def process_ui(H):
     B = row[1]
     cursor.execute('UPDATE sentences SET used=used+1 WHERE rowid=?', (row[0],)) 
 
+def get_ip_info():
+    # Get ipv4 address based on client OS
+    command = "ipconfig | grep -iF 192.168.1." if platform.system() == "Windows" else "ifconfig | grep -iF 192.168.1."
+    ip_info = popen(command).read()
+
+    lines = ip_info.split("\n")
+    ipv4_address = ""
+    tokens = []
+    
+    # Parse ipv4 address
+    for line in lines:
+        if "ipv4" or "inet" in line.lower():
+            tokens = line.split(" ")
+            
+            for token in tokens:
+                if any(char.isdigit() for char in token):
+                    ipv4_address = token
+                    return ipv4_address.strip(" ")
+
+    return "127.0.0.1"
+
 # -- MAIN FUNCTION --
 if __name__ == '__main__':
+    ipv4_address = get_ip_info()
+
+    print("Your IPv4 Address is: {}".format(ipv4_address))
+    choice = input("Would you like to connect to {} on port 8080, i.e., {}:8080? (Y/N) ".format(ipv4_address, ipv4_address)).lower()
+
+    IPADDR, PORT_NUMBER = input("Local web IP: ") if choice == "n" else ipv4_address, int(input("Local web port: ")) if choice == "n" else 8080
     
     # create the tables needed by the program
     create_table_request_list = [
@@ -220,6 +233,7 @@ if __name__ == '__main__':
         'CREATE TABLE sentences(sentence TEXT UNIQUE, used INT NOT NULL DEFAULT 0)',
         'CREATE TABLE associations (word_id INT NOT NULL, sentence_id INT NOT NULL, weight REAL NOT NULL)',
     ]
+    
     for create_table_request in create_table_request_list:
         try:
             cursor.execute(create_table_request)
@@ -237,6 +251,9 @@ if __name__ == '__main__':
         # tcpserver = BotServer(HOST, PORT)
         # asyncore.loop()
         # print ("Started tcpserver on port " , PORT)
+
+         # Open URL in new window, raising the window if possible.
+        webbrowser.open_new("{}:{}".format(IPADDR, PORT_NUMBER))
         
         #Wait forever for incoming htto requests
         server.serve_forever()
